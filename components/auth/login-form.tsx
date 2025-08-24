@@ -20,6 +20,8 @@ export function LoginForm({
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [loginAttempts, setLoginAttempts] = useState(0)
+  const [isBlocked, setIsBlocked] = useState(false)
 
   const { login } = useAuth()
   const router = useRouter()
@@ -28,8 +30,40 @@ export function LoginForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    // Check if user is temporarily blocked
+    if (isBlocked) {
+      setError(
+        'Too many failed attempts. Please wait 5 minutes before trying again.'
+      )
+      return
+    }
+
+    // Basic validation
     if (!email || !password) {
       setError('Please fill in all fields')
+      return
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address')
+      return
+    }
+
+    // Prevent rapid-fire login attempts
+    if (loginAttempts >= 5) {
+      setIsBlocked(true)
+      setError(
+        'Too many failed attempts. Please wait 5 minutes before trying again.'
+      )
+      setTimeout(
+        () => {
+          setIsBlocked(false)
+          setLoginAttempts(0)
+        },
+        5 * 60 * 1000
+      ) // 5 minutes
       return
     }
 
@@ -38,12 +72,22 @@ export function LoginForm({
 
     try {
       await login(email, password)
+      // Reset login attempts on successful login
+      setLoginAttempts(0)
       onSuccess?.()
 
-      // Check for redirect parameter from URL, otherwise use default
+      // Validate redirect parameter to prevent open redirect attacks
       const redirectPath = searchParams.get('redirect') || redirectTo
-      router.push(redirectPath)
+      // Only allow internal redirects (starting with / but not //)
+      const safeRedirectPath =
+        redirectPath.startsWith('/') && !redirectPath.startsWith('//')
+          ? redirectPath
+          : redirectTo
+
+      router.push(safeRedirectPath)
     } catch (error) {
+      // Increment login attempts on failure
+      setLoginAttempts(prev => prev + 1)
       setError((error as Error).message)
     } finally {
       setIsLoading(false)
@@ -83,7 +127,10 @@ export function LoginForm({
               onChange={e => setEmail(e.target.value)}
               className="text-primary w-full rounded-lg border border-bg-tertiary bg-bg-secondary px-4 py-3 placeholder-text-secondary transition-colors focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green"
               placeholder="Enter your email"
-              disabled={isLoading}
+              disabled={isLoading || isBlocked}
+              autoComplete="email"
+              autoCapitalize="none"
+              spellCheck="false"
               required
             />
           </div>
@@ -102,7 +149,8 @@ export function LoginForm({
               onChange={e => setPassword(e.target.value)}
               className="text-primary w-full rounded-lg border border-bg-tertiary bg-bg-secondary px-4 py-3 placeholder-text-secondary transition-colors focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green"
               placeholder="Enter your password"
-              disabled={isLoading}
+              disabled={isLoading || isBlocked}
+              autoComplete="current-password"
               required
             />
           </div>
@@ -111,7 +159,7 @@ export function LoginForm({
         <Button
           type="submit"
           className="w-full py-3 font-medium"
-          disabled={isLoading}
+          disabled={isLoading || isBlocked}
         >
           {isLoading ? (
             <span className="flex items-center justify-center">
@@ -142,23 +190,13 @@ export function LoginForm({
           )}
         </Button>
 
-        <div className="space-y-2 text-center">
+        <div className="text-center">
           <Link
             href="/auth/forgot-password"
             className="hover:text-accent-green/80 text-sm text-accent-green transition-colors"
           >
             Forgot your password?
           </Link>
-
-          <div className="text-sm text-text-secondary">
-            Need an account?{' '}
-            <Link
-              href="/auth/register"
-              className="hover:text-accent-green/80 text-accent-green transition-colors"
-            >
-              Sign up
-            </Link>
-          </div>
         </div>
       </form>
     </Card>

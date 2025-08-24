@@ -2,7 +2,6 @@ import {
   User,
   UserCredential,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   sendPasswordResetEmail,
@@ -25,12 +24,6 @@ export interface AuthUser {
 export interface LoginCredentials {
   email: string
   password: string
-}
-
-export interface RegisterCredentials {
-  email: string
-  password: string
-  displayName?: string
 }
 
 export interface AuthError {
@@ -72,39 +65,6 @@ export const authService = {
         code: firebaseError.code || 'auth/unknown-error',
         message:
           firebaseError.message || 'An unknown error occurred during sign in',
-      } as AuthError
-    }
-  },
-
-  // Register new user with email and password
-  register: async (credentials: RegisterCredentials): Promise<AuthUser> => {
-    try {
-      const userCredential: UserCredential =
-        await createUserWithEmailAndPassword(
-          auth,
-          credentials.email,
-          credentials.password
-        )
-
-      // Update profile with display name if provided
-      if (credentials.displayName) {
-        await updateProfile(userCredential.user, {
-          displayName: credentials.displayName,
-        })
-      }
-
-      const authUser = convertFirebaseUser(userCredential.user)
-      if (!authUser) {
-        throw new Error('Failed to convert user data')
-      }
-      return authUser
-    } catch (error: unknown) {
-      const firebaseError = error as { code?: string; message?: string }
-      throw {
-        code: firebaseError.code || 'auth/unknown-error',
-        message:
-          firebaseError.message ||
-          'An unknown error occurred during registration',
       } as AuthError
     }
   },
@@ -209,8 +169,6 @@ export const getAuthErrorMessage = (error: AuthError): string => {
       return 'No user found with this email address.'
     case 'auth/wrong-password':
       return 'Incorrect password. Please try again.'
-    case 'auth/email-already-in-use':
-      return 'An account with this email already exists.'
     case 'auth/weak-password':
       return 'Password should be at least 6 characters long.'
     case 'auth/invalid-email':

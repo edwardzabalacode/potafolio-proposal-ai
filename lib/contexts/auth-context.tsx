@@ -4,7 +4,6 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import {
   User,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   updateProfile,
@@ -17,11 +16,6 @@ interface AuthContextType {
   user: User | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (
-    email: string,
-    password: string,
-    displayName?: string
-  ) => Promise<void>
   logout: () => Promise<void>
   resetPassword: (email: string) => Promise<void>
   updateUserProfile: (displayName: string) => Promise<void>
@@ -65,32 +59,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
-  const register = async (
-    email: string,
-    password: string,
-    displayName?: string
-  ): Promise<void> => {
-    try {
-      setLoading(true)
-      const { user } = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      )
-
-      if (displayName && user) {
-        await updateProfile(user, { displayName })
-        // Force refresh the user object to get updated profile
-        await user.reload()
-        setUser(auth.currentUser)
-      }
-    } catch (error) {
-      throw handleAuthError(error as FirebaseAuthError)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const logout = async (): Promise<void> => {
     try {
       setLoading(true)
@@ -126,7 +94,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     user,
     loading,
     login,
-    register,
     logout,
     resetPassword,
     updateUserProfile,
@@ -151,9 +118,6 @@ function handleAuthError(error: FirebaseAuthError): Error {
       break
     case 'auth/user-disabled':
       message = 'This account has been disabled'
-      break
-    case 'auth/email-already-in-use':
-      message = 'An account with this email already exists'
       break
     case 'auth/weak-password':
       message = 'Password should be at least 6 characters'
