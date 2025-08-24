@@ -1,0 +1,11 @@
+# Task ID: 5
+# Title: Design Admin Dashboard Layout and Navigation
+# Status: done
+# Dependencies: 4
+# Priority: medium
+# Description: Create the main admin dashboard with navigation for content management
+# Details:
+Build /admin layout with sidebar navigation. Include sections for Profile, Projects, Blog, Proposals, and Settings. Use existing brutalist design system. Add logout functionality and user indicator.
+
+# Test Strategy:
+Test responsive design, navigation functionality, and ensure consistent styling with main site

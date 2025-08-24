@@ -1,0 +1,248 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Configure Firebase Project and Dependencies",
+        "description": "Set up Firebase project with Authentication, Firestore, and Storage services",
+        "status": "done",
+        "dependencies": [],
+        "priority": "high",
+        "details": "Install Firebase SDK v9+, create Firebase project, configure authentication (email/password), Firestore database, and Storage. Create firebase.config.ts with project configuration. Add environment variables for Firebase keys.",
+        "testStrategy": "Verify Firebase connection, test authentication service initialization, and confirm Firestore and Storage connectivity",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Install Firebase SDK and Initialize Project Configuration",
+            "description": "Install Firebase SDK v9+ and create the initial Firebase project configuration file",
+            "dependencies": [],
+            "details": "Install firebase package using npm install firebase. Create lib/firebase/config.ts file with Firebase project configuration. Set up the Firebase app initialization with config object. Include proper TypeScript types and error handling for initialization.",
+            "status": "done",
+            "testStrategy": "Verify Firebase package installation, test config file imports without errors, and confirm Firebase app initializes successfully"
+          },
+          {
+            "id": 2,
+            "title": "Configure Environment Variables for Firebase",
+            "description": "Set up environment variables for Firebase project credentials and add them to configuration",
+            "dependencies": ["1.1"],
+            "details": "Add Firebase environment variables to .env.local file: NEXT_PUBLIC_FIREBASE_API_KEY, NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN, NEXT_PUBLIC_FIREBASE_PROJECT_ID, NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET, NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID, NEXT_PUBLIC_FIREBASE_APP_ID. Update lib/firebase/config.ts to use these environment variables. Add .env.local to .gitignore if not already present.",
+            "status": "done",
+            "testStrategy": "Verify environment variables are loaded correctly and Firebase config uses them properly"
+          },
+          {
+            "id": 3,
+            "title": "Initialize Firebase Authentication Service",
+            "description": "Set up Firebase Authentication with email/password provider configuration",
+            "dependencies": ["1.2"],
+            "details": "Create lib/firebase/auth.ts file to initialize Firebase Auth service. Import and configure getAuth from firebase/auth. Set up email/password authentication provider. Create utility functions for auth state management. Add proper TypeScript interfaces for auth-related types.",
+            "status": "done",
+            "testStrategy": "Test Authentication service initialization and verify email/password provider is correctly configured"
+          },
+          {
+            "id": 4,
+            "title": "Initialize Firestore Database Service",
+            "description": "Configure Firestore database connection and create basic database utilities",
+            "dependencies": ["1.2"],
+            "details": "Create lib/firebase/firestore.ts file with Firestore initialization using getFirestore from firebase/firestore. Set up basic database utility functions for connecting to Firestore. Add TypeScript interfaces for database operations. Prepare structure for future collection and document operations.",
+            "status": "done",
+            "testStrategy": "Verify Firestore database connection and test basic database utility functions"
+          },
+          {
+            "id": 5,
+            "title": "Initialize Firebase Storage Service",
+            "description": "Set up Firebase Storage for file uploads and media management",
+            "dependencies": ["1.2"],
+            "details": "Create lib/firebase/storage.ts file with Storage initialization using getStorage from firebase/storage. Set up basic storage utility functions for file upload preparation. Add TypeScript interfaces for storage operations. Configure storage security rules preparation for user-specific file access.",
+            "status": "done",
+            "testStrategy": "Test Storage service initialization and verify connection to Firebase Storage bucket"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Implement Firestore Data Structure and Security Rules",
+        "description": "Design and implement the stores/[userUID] data structure with proper security rules",
+        "status": "done",
+        "dependencies": [1],
+        "priority": "high",
+        "details": "Create Firestore collections: stores/[userUID]/profile, projects, blog, proposals, settings. Implement security rules to ensure users can only access their own data. Define TypeScript interfaces for all data structures.",
+        "testStrategy": "Test security rules with authenticated and unauthenticated users, verify data isolation between users",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Create Authentication Context and Firebase Auth Integration",
+        "description": "Implement Firebase Authentication with React Context for state management",
+        "status": "done",
+        "dependencies": [1],
+        "priority": "high",
+        "details": "Create AuthContext with login, logout, register functions. Implement useAuth hook. Add email/password authentication. Handle auth state persistence and loading states. Create login/register forms.",
+        "testStrategy": "Test login/logout flow, verify auth state persistence across browser sessions, test error handling for invalid credentials",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Build Admin Route Protection Middleware",
+        "description": "Create middleware to protect /admin routes with authentication verification",
+        "status": "done",
+        "dependencies": [3],
+        "priority": "high",
+        "details": "Implement Next.js middleware to check authentication status for /admin/* routes. Redirect unauthenticated users to login page. Create protected route wrapper component.",
+        "testStrategy": "Test route protection for authenticated and unauthenticated users, verify redirects work correctly",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Design Admin Dashboard Layout and Navigation",
+        "description": "Create the main admin dashboard with navigation for content management",
+        "status": "done",
+        "dependencies": [4],
+        "priority": "medium",
+        "details": "Build /admin layout with sidebar navigation. Include sections for Profile, Projects, Blog, Proposals, and Settings. Use existing brutalist design system. Add logout functionality and user indicator.",
+        "testStrategy": "Test responsive design, navigation functionality, and ensure consistent styling with main site",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Implement Hero Section Content Management",
+        "description": "Create forms to edit hero section content (name, title, description, social links)",
+        "status": "done",
+        "dependencies": [5, 2],
+        "priority": "high",
+        "details": "Build admin forms for editing personal_info, contact_info, and hero_content. Include fields for name, title, description, social media links, and profile image. Implement real-time preview.",
+        "testStrategy": "Test form validation, data persistence to Firestore, and real-time updates on the public site",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Build Projects CRUD Management System",
+        "description": "Create full CRUD interface for managing portfolio projects",
+        "status": "done",
+        "dependencies": [5, 2],
+        "priority": "high",
+        "details": "Implement project creation, editing, deletion forms. Include fields for title, description, technologies, images, URLs, categories. Add drag-and-drop for project ordering. Integrate with Firebase Storage for images.",
+        "testStrategy": "Test all CRUD operations, image upload functionality, and data validation",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Create Blog Posts Management Interface",
+        "description": "Build CRUD system for blog posts with rich text editing",
+        "status": "done",
+        "dependencies": [5, 2],
+        "priority": "medium",
+        "details": "Create forms for blog post management with rich text editor. Include title, content, excerpt, category, slug generation. Add featured image support and publish/draft status.",
+        "testStrategy": "Test rich text editor functionality, image uploads, slug generation, and content persistence",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Implement Firebase Storage Image Management",
+        "description": "Create image upload and management system using Firebase Storage",
+        "status": "done",
+        "dependencies": [1],
+        "priority": "medium",
+        "details": "Build image upload component with drag-and-drop, preview, and compression. Organize images by user and content type. Implement image deletion and optimization for web display.",
+        "testStrategy": "Test upload functionality, image compression, storage organization, and cleanup of deleted images",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Migrate Static Content to Dynamic Firestore Data",
+        "description": "Replace hardcoded content in components with Firestore data fetching",
+        "status": "done",
+        "dependencies": [6, 7, 8],
+        "priority": "high",
+        "details": "Create custom hooks for fetching data from Firestore. Update HeroSection, ProjectsSection, BlogSection to use dynamic data. Implement loading states and error handling. Add caching for performance.",
+        "testStrategy": "Test data loading, error states, loading indicators, and verify all content displays correctly from Firestore",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Configure OpenAI API Integration",
+        "description": "Set up OpenAI API for proposal generation with rate limiting",
+        "status": "done",
+        "dependencies": [1],
+        "priority": "medium",
+        "details": "Install OpenAI SDK, configure API keys, create utility functions for GPT-4 calls. Implement rate limiting and response caching. Create prompt templates for different proposal types.",
+        "testStrategy": "Test API connectivity, rate limiting functionality, and prompt template responses",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Install OpenAI SDK and configure environment",
+            "description": "Install OpenAI SDK package and set up environment variables for API key",
+            "details": "Install openai package via npm. Add OPENAI_API_KEY to .env file and configure it properly in the project.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 2,
+            "title": "Create OpenAI service utility functions",
+            "description": "Create utility functions for OpenAI API calls with proper error handling",
+            "details": "Create lib/services/openai-service.ts with functions for chat completions, rate limiting, and error handling following the existing service patterns.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 3,
+            "title": "Implement rate limiting and caching",
+            "description": "Add rate limiting and response caching to prevent API abuse and improve performance",
+            "details": "Implement rate limiting using a simple in-memory store or external service. Add response caching for similar requests to reduce API calls.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 4,
+            "title": "Create prompt templates for proposals",
+            "description": "Design and implement prompt templates for different types of proposal generation",
+            "details": "Create template system for different proposal types (web development, mobile apps, etc.) with customizable parameters and context injection.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Build Proposal Generator Interface",
+        "description": "Create AI-powered proposal generation system with templates",
+        "status": "done",
+        "dependencies": [11, 5],
+        "priority": "medium",
+        "details": "Build proposal generator form with project type selection, requirements input, and template customization. Integrate OpenAI for content generation. Add proposal preview and editing capabilities.",
+        "testStrategy": "Test proposal generation with different inputs, template customization, and AI response quality",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Implement Proposal Management and History",
+        "description": "Create system to save, edit, and manage generated proposals",
+        "status": "done",
+        "dependencies": [12, 2],
+        "priority": "medium",
+        "details": "Build proposal library with search, filtering, and categorization. Add proposal editing, copying, and export functionality. Implement version history and success tracking.",
+        "testStrategy": "Test proposal storage, search functionality, editing capabilities, and export features",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Implementar Sistema de Analytics y Estadísticas",
+        "description": "Sistema para trackear uso del sitio web con métricas de visitantes, proyectos y blog",
+        "details": "Crear sistema de analytics para registrar:\n- Visitantes únicos y totales al sitio\n- Proyectos más visitados (tracking de clicks)\n- Vistas de posts del blog\n- Clicks en botón de contacto de Upwork\n- Dashboard de estadísticas en el admin panel\n- Implementar con Firebase Analytics o sistema custom",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-21T21:17:10.704Z",
+      "updated": "2025-08-24T00:05:49.276Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

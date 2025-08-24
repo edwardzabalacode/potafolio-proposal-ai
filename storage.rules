@@ -1,0 +1,74 @@
+rules_version = '2';
+
+// Firebase Storage security rules for portfolio application
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user owns the resource
+    function isOwner(userUID) {
+      return isAuthenticated() && request.auth.uid == userUID;
+    }
+    
+    // Helper function to validate image file types
+    function isValidImageType() {
+      return request.resource.contentType.matches('image/.*') &&
+             request.resource.contentType in [
+               'image/jpeg',
+               'image/jpg', 
+               'image/png',
+               'image/webp',
+               'image/gif'
+             ];
+    }
+    
+    // Helper function to validate file size (max 5MB)
+    function isValidFileSize() {
+      return request.resource.size <= 5 * 1024 * 1024;
+    }
+    
+    // User-specific storage paths - users can only access their own files
+    match /users/{userUID}/{allPaths=**} {
+      allow read: if isOwner(userUID);
+      allow write: if isOwner(userUID) && 
+                   isValidImageType() && 
+                   isValidFileSize();
+      allow delete: if isOwner(userUID);
+    }
+    
+    // Project images
+    match /projects/{userUID}/{projectId}/{fileName} {
+      allow read: if isOwner(userUID);
+      allow write: if isOwner(userUID) && 
+                   isValidImageType() && 
+                   isValidFileSize();
+      allow delete: if isOwner(userUID);
+    }
+    
+    // Blog post images
+    match /blog/{userUID}/{postId}/{fileName} {
+      allow read: if isOwner(userUID);
+      allow write: if isOwner(userUID) && 
+                   isValidImageType() && 
+                   isValidFileSize();
+      allow delete: if isOwner(userUID);
+    }
+    
+    // Profile images (avatars, hero backgrounds)
+    match /profile/{userUID}/{fileName} {
+      allow read: if isOwner(userUID);
+      allow write: if isOwner(userUID) && 
+                   isValidImageType() && 
+                   isValidFileSize();
+      allow delete: if isOwner(userUID);
+    }
+    
+    // Deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

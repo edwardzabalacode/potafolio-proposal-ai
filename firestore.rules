@@ -1,0 +1,122 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user owns the resource
+    function isOwner(userUID) {
+      return isAuthenticated() && request.auth.uid == userUID;
+    }
+    
+    // Helper function to validate required fields for different data types
+    function hasRequiredProfileFields() {
+      return request.resource.data.keys().hasAll([]) &&
+             request.resource.data.updatedAt is timestamp;
+    }
+    
+    function hasRequiredProjectFields() {
+      return request.resource.data.keys().hasAll([
+        'title', 'description', 'technologies', 'category', 'slug', 'featured', 'status'
+      ]) &&
+      request.resource.data.createdAt is timestamp &&
+      request.resource.data.updatedAt is timestamp &&
+      request.resource.data.status in ['active', 'completed', 'archived'] &&
+      request.resource.data.featured is bool;
+    }
+    
+    function hasRequiredBlogFields() {
+      return request.resource.data.keys().hasAll([
+        'title', 'content', 'excerpt', 'slug', 'category', 'published'
+      ]) &&
+      request.resource.data.createdAt is timestamp &&
+      request.resource.data.updatedAt is timestamp &&
+      request.resource.data.published is bool;
+    }
+    
+    function hasRequiredProposalTemplateFields() {
+      return request.resource.data.keys().hasAll([
+        'name', 'category', 'content', 'variables'
+      ]) &&
+      request.resource.data.createdAt is timestamp &&
+      request.resource.data.updatedAt is timestamp;
+    }
+    
+    function hasRequiredGeneratedProposalFields() {
+      return request.resource.data.keys().hasAll([
+        'jobTitle', 'content', 'status'
+      ]) &&
+      request.resource.data.createdAt is timestamp &&
+      request.resource.data.updatedAt is timestamp &&
+      request.resource.data.status in ['draft', 'sent', 'accepted', 'rejected'];
+    }
+    
+    // Root stores collection - no direct access
+    match /stores/{document=**} {
+      allow read, write: if false;
+    }
+    
+    // User store access - users can only access their own store
+    match /stores/{userUID} {
+      allow read, write: if isOwner(userUID);
+      
+      // Profile subcollection
+      match /profile/{profileDoc} {
+        allow read, write: if isOwner(userUID) && hasRequiredProfileFields();
+      }
+      
+      // Projects subcollection
+      match /projects/{projectId} {
+        allow read: if isOwner(userUID);
+        allow create: if isOwner(userUID) && hasRequiredProjectFields();
+        allow update: if isOwner(userUID) && 
+                      hasRequiredProjectFields() &&
+                      request.resource.data.createdAt == resource.data.createdAt;
+        allow delete: if isOwner(userUID);
+      }
+      
+      // Blog subcollection
+      match /blog/{postId} {
+        allow read: if isOwner(userUID);
+        allow create: if isOwner(userUID) && hasRequiredBlogFields();
+        allow update: if isOwner(userUID) && 
+                      hasRequiredBlogFields() &&
+                      request.resource.data.createdAt == resource.data.createdAt;
+        allow delete: if isOwner(userUID);
+      }
+      
+      // Settings subcollection
+      match /settings/{settingsDoc} {
+        allow read, write: if isOwner(userUID);
+      }
+      
+      // Proposals templates subcollection
+      match /proposals/templates/{templateId} {
+        allow read: if isOwner(userUID);
+        allow create: if isOwner(userUID) && hasRequiredProposalTemplateFields();
+        allow update: if isOwner(userUID) && 
+                      hasRequiredProposalTemplateFields() &&
+                      request.resource.data.createdAt == resource.data.createdAt;
+        allow delete: if isOwner(userUID);
+      }
+      
+      // Generated proposals subcollection
+      match /proposals/generated/{proposalId} {
+        allow read: if isOwner(userUID);
+        allow create: if isOwner(userUID) && hasRequiredGeneratedProposalFields();
+        allow update: if isOwner(userUID) && 
+                      hasRequiredGeneratedProposalFields() &&
+                      request.resource.data.createdAt == resource.data.createdAt;
+        allow delete: if isOwner(userUID);
+      }
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

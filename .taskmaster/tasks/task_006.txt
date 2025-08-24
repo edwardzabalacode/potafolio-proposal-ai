@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Implement Hero Section Content Management
+# Status: done
+# Dependencies: 5, 2
+# Priority: high
+# Description: Create forms to edit hero section content (name, title, description, social links)
+# Details:
+Build admin forms for editing personal_info, contact_info, and hero_content. Include fields for name, title, description, social media links, and profile image. Implement real-time preview.
+
+# Test Strategy:
+Test form validation, data persistence to Firestore, and real-time updates on the public site

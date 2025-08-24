@@ -1,0 +1,11 @@
+# Task ID: 7
+# Title: Build Projects CRUD Management System
+# Status: done
+# Dependencies: 5, 2
+# Priority: high
+# Description: Create full CRUD interface for managing portfolio projects
+# Details:
+Implement project creation, editing, deletion forms. Include fields for title, description, technologies, images, URLs, categories. Add drag-and-drop for project ordering. Integrate with Firebase Storage for images.
+
+# Test Strategy:
+Test all CRUD operations, image upload functionality, and data validation

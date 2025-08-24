@@ -1,0 +1,152 @@
+<context>
+# Overview  
+Transformar el portafolio estático actual en un sistema dinámico de gestión de contenido con capacidades de administración completa y generación inteligente de propuestas para Upwork. El sistema permitirá editar todo el contenido del portafolio a través de un panel de administración protegido, gestionar proyectos y artículos de blog, y generar propuestas personalizadas usando IA para diferentes tipos de proyectos freelance.
+
+# Core Features  
+## Panel de Administración (/admin)
+- **Autenticación con Firebase Auth**: Sistema de login seguro para acceder al panel
+- **Gestión de contenido completa**: Editar hero section, proyectos, artículos de blog, información de contacto
+- **Interfaz intuitiva**: Dashboard con navegación clara para todas las secciones editables
+- **Vista previa en tiempo real**: Capacidad de ver cambios antes de publicarlos
+
+## Generador de Propuestas con IA
+- **Templates base por categoría**: Plantillas predefinidas para móvil, web, e-commerce, etc.
+- **Integración OpenAI**: Uso de GPT para generar propuestas personalizadas basadas en ejemplos
+- **Gestión de propuestas**: Guardar, editar y reutilizar propuestas generadas
+- **Biblioteca de ejemplos**: Almacenar propuestas exitosas como referencia
+
+## Sistema de Datos Dinámico
+- **Migración de contenido**: Trasladar todo el contenido estático a Firebase Firestore
+- **Estructura optimizada**: Organización eficiente de datos por usuario/store
+- **Sincronización en tiempo real**: Actualizaciones inmediatas del contenido visible
+
+# User Experience  
+## Administrador del Portafolio
+- **Flujo de login**: Acceso rápido y seguro al panel de administración
+- **Dashboard centralizado**: Vista general con acceso a todas las funciones
+- **Edición contextual**: Formularios intuitivos para cada tipo de contenido
+- **Gestión de media**: Subida y organización de imágenes para proyectos
+
+## Creador de Propuestas
+- **Asistente guiado**: Proceso paso a paso para generar propuestas
+- **Personalización flexible**: Ajuste de templates según el proyecto específico
+- **Historial organizado**: Búsqueda y filtrado de propuestas anteriores
+</context>
+
+<PRD>
+# Technical Architecture  
+## Firebase Integration
+- **Authentication**: Firebase Auth con email/password
+- **Database**: Firestore con estructura stores/[userUID]/
+- **Storage**: Firebase Storage para imágenes y archivos de proyectos
+- **Security Rules**: Reglas estrictas para proteger datos por usuario
+
+## Data Structure en Firestore
+```
+stores/[userUID]/
+├── profile/
+│   ├── personal_info (nombre, título, descripción)
+│   ├── contact_info (email, redes sociales)
+│   └── hero_content (texto principal, CTA)
+├── projects/
+│   └── [projectId]/ (título, descripción, tecnologías, imágenes, enlaces)
+├── blog/
+│   └── [postId]/ (título, contenido, fecha, categoría, slug)
+├── proposals/
+│   ├── templates/ (plantillas base por categoría)
+│   └── generated/ (propuestas creadas con historial)
+└── settings/
+    └── site_config (meta tags, configuración general)
+```
+
+## OpenAI Integration
+- **API**: OpenAI GPT-4 para generación de contenido
+- **Prompts estructurados**: Templates específicos para diferentes tipos de propuestas
+- **Rate limiting**: Control de uso de API con caché de respuestas
+
+## Frontend Architecture
+- **Next.js App Router**: Mantenimiento de la estructura actual
+- **Admin Routes**: Nuevas rutas protegidas bajo /admin/*
+- **Context Providers**: State management para autenticación y datos
+- **Real-time Updates**: Hooks personalizados para sincronización con Firestore
+
+# Development Roadmap  
+## Phase 1: Infraestructura Firebase (Fundación)
+- Configuración completa de Firebase (Auth, Firestore, Storage)
+- Implementación de autenticación básica
+- Estructura de datos en Firestore definida y configurada
+- Security rules implementadas y probadas
+- Middleware de protección de rutas administrativas
+
+## Phase 2: Panel de Administración Básico
+- Layout del dashboard administrativo
+- Formularios de edición para contenido del hero
+- Gestión básica de proyectos (CRUD completo)
+- Gestión básica de artículos de blog (CRUD completo)
+- Sistema de subida de imágenes a Firebase Storage
+
+## Phase 3: Migración a Contenido Dinámico
+- Migración completa del contenido estático a Firebase
+- Hooks y providers para cargar datos dinámicamente
+- Actualización de todos los componentes para usar datos de Firestore
+- Sistema de caché y optimización de carga
+- Testing exhaustivo de la migración
+
+## Phase 4: Generador de Propuestas con IA
+- Integración con OpenAI API
+- Creación de templates base para diferentes categorías
+- Interfaz para generar propuestas con parámetros personalizables
+- Sistema de guardado y gestión de propuestas generadas
+- Función de copia rápida y exportación de propuestas
+
+## Phase 5: Optimización y Funciones Avanzadas
+- Sistema de versionado para contenido
+- Backup automático de datos
+- Analytics del panel de administración
+- Función de importar/exportar configuración completa
+- Optimización de rendimiento y SEO dinámico
+
+# Logical Dependency Chain
+## Orden de Desarrollo Crítico:
+1. **Firebase Setup First**: Sin la infraestructura de datos, nada más puede funcionar
+2. **Authentication Layer**: Necesario antes de cualquier funcionalidad administrativa
+3. **Basic CRUD Operations**: Fundación para toda la gestión de contenido
+4. **Frontend Visible ASAP**: Migrar hero section primero para mostrar progreso visible
+5. **Content Migration Gradual**: Proyecto por proyecto para mantener funcionalidad
+6. **AI Features Last**: Requieren que todo el sistema base esté estable
+
+## Dependencias Técnicas:
+- Security rules → Authentication → Admin panel
+- Data structure → CRUD operations → Content migration
+- Basic admin panel → Advanced features → AI integration
+- Content migration → SEO optimization → Performance tuning
+
+# Risks and Mitigations  
+## Technical Challenges
+- **Firebase costs escalating**: Implementar límites de uso y optimización de queries
+- **OpenAI API limits**: Sistema de caché y rate limiting robusto
+- **Data migration complexity**: Migración gradual con rollback capabilities
+- **Security vulnerabilities**: Auditoría exhaustiva de security rules
+
+## MVP Strategy
+- **Phase 1-2 como MVP funcional**: Panel básico que permita editar contenido esencial
+- **Contenido híbrido temporal**: Permitir coexistencia de datos estáticos y dinámicos
+- **Fallback systems**: Mantener contenido estático como backup durante migración
+
+## Resource Constraints
+- **API costs monitoring**: Dashboard de uso y alertas automáticas
+- **Development complexity**: Priorizar funcionalidades core sobre features avanzadas
+- **Testing coverage**: Automatización de tests para features críticas
+
+# Appendix  
+## Research Findings
+- **Firebase pricing**: Estimación de costos basada en uso proyectado
+- **OpenAI best practices**: Optimización de prompts para mejores resultados
+- **Competencia**: Análisis de herramientas similares en el mercado
+
+## Technical Specifications
+- **Node.js 18+**: Requerimientos de runtime para OpenAI SDK
+- **Firebase SDK v9+**: Compatibilidad con Next.js App Router
+- **Image optimization**: Estrategia para Storage y Next.js Image component
+- **SEO considerations**: Implementación de meta tags dinámicos desde Firestore
+</PRD>

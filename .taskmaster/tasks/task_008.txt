@@ -1,0 +1,11 @@
+# Task ID: 8
+# Title: Create Blog Posts Management Interface
+# Status: done
+# Dependencies: 5, 2
+# Priority: medium
+# Description: Build CRUD system for blog posts with rich text editing
+# Details:
+Create forms for blog post management with rich text editor. Include title, content, excerpt, category, slug generation. Add featured image support and publish/draft status.
+
+# Test Strategy:
+Test rich text editor functionality, image uploads, slug generation, and content persistence
